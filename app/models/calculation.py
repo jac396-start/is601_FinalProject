@@ -199,6 +199,33 @@ class AbstractCalculation:
         """
         raise NotImplementedError
 
+    def calculate_and_save(self, db_session):
+        """
+        Calculate the result and save it to the database.
+    
+        This method computes the result using get_result() and persists
+        it to the database in a single transaction.
+    
+        Args:
+            db_session: SQLAlchemy database session
+        
+        Returns:    
+            float: The calculated result
+        
+        Raises:
+            ValueError: If the calculation fails (e.g., division by zero)
+        """
+        try:
+            self.result = self.get_result()
+            self.updated_at = datetime.utcnow()
+            db_session.add(self)
+            db_session.commit()
+            db_session.refresh(self)
+            return self.result
+        except Exception as e:
+            db_session.rollback()
+            raise ValueError(f"Calculation failed: {str(e)}")
+
     def __repr__(self):
         """
         String representation of the calculation for debugging.
