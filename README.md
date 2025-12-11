@@ -243,6 +243,13 @@ Then submit the GitHub repository link as instructed.
 | Build Docker Image              | `docker build -t <image-name> .`                |
 | Run Docker Container            | `docker run -it --rm <image-name>`               |
 | Push Code to GitHub             | `git add . && git commit -m "message" && git push` |
+| Copy                           | 'cp -a ~[/file/path/[name.type] or .(all) ~ /[file/path/]          |
+| View Remote Conx               | 'git remote -v'                                  |
+| Disconx Remote                 | 'git remote rm origin'                           |
+| Delete Folder/File             | 'rm -rf Folder or FIle                            |
+| Branch modified files          | 'git checkout -b new-branch-name'                  |
+| Advanced testing feature       | 'playwrigt install'                             |
+| Target testing in Playwright   | 'pytest [file/name] -v'                          |
 
 ---
 
