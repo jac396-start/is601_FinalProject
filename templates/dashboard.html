@@ -33,12 +33,37 @@
   class="bg-white shadow-lg rounded-lg mb-6 p-6 
          transition-all duration-300 hover:shadow-xl border border-gray-100"
 >
-  <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
-    <svg class="w-5 h-5 mr-2 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-    </svg>
-    New Calculation
-  </h2>
+  <!-- Centered Header with Icon -->
+  <div class="text-center mb-6">
+    <div class="flex justify-center mb-3">
+      <svg class="h-12 w-12 filter drop-shadow-md" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="headerGloss1" cx="35%" cy="30%">
+            <stop offset="0%" style="stop-color:#fca5a5;stop-opacity:1" />
+            <stop offset="30%" style="stop-color:#dc2626;stop-opacity:1" />
+            <stop offset="70%" style="stop-color:#b91c1c;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#7f1d1d;stop-opacity:1" />
+          </radialGradient>
+          <radialGradient id="headerShine1" cx="50%" cy="50%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+            <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+          <clipPath id="headerClip1">
+            <circle cx="50" cy="50" r="42"/>
+          </clipPath>
+        </defs>
+        <circle cx="50" cy="50" r="42" fill="url(#headerGloss1)"/>
+        <ellipse cx="38" cy="32" rx="16" ry="20" fill="url(#headerShine1)" opacity="0.8" clip-path="url(#headerClip1)"/>
+        <ellipse cx="62" cy="68" rx="8" ry="10" fill="#ffffff" opacity="0.15" clip-path="url(#headerClip1)"/>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#b91c1c" stroke-width="1.5" opacity="0.4"/>
+        <!-- Plus Icon -->
+        <path d="M50 30 L50 70 M30 50 L70 50" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.95"/>
+      </svg>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800">New Calculation</h2>
+  </div>
+
   <form id="calculationForm" class="space-y-5">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <!-- Type -->
@@ -71,18 +96,61 @@
         />
       </div>
     </div>
-    <div class="pt-2">
+    
+    <!-- Centered Calculate Button in Orb -->
+    <div class="flex justify-center pt-4">
       <button 
         type="submit" 
-        class="bg-red-700 text-white px-6 py-2 
-              rounded-md hover:bg-red-800 transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-offset-2 
-              focus:ring-red-500 font-medium flex items-center"
+        class="relative group"
       >
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+        <!-- Orb SVG Button -->
+        <svg class="h-24 w-24 filter drop-shadow-lg transition-transform duration-200 group-hover:scale-105" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="buttonGloss" cx="32%" cy="28%">
+              <stop offset="0%" style="stop-color:#fee2e2;stop-opacity:1" />
+              <stop offset="20%" style="stop-color:#fca5a5;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+              <stop offset="80%" style="stop-color:#b91c1c;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7f1d1d;stop-opacity:1" />
+            </radialGradient>
+            <radialGradient id="buttonShine" cx="50%" cy="50%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="40%" style="stop-color:#ffffff;stop-opacity:0.5" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </radialGradient>
+            <filter id="buttonGlow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <clipPath id="buttonClip">
+              <circle cx="50" cy="50" r="40"/>
+            </clipPath>
+          </defs>
+          <!-- Main sphere -->
+          <circle cx="50" cy="50" r="40" fill="url(#buttonGloss)" filter="url(#buttonGlow)" class="group-hover:opacity-95 transition-opacity"/>
+          <!-- Highlight -->
+          <ellipse cx="36" cy="30" rx="18" ry="24" fill="url(#buttonShine)" opacity="0.85" clip-path="url(#buttonClip)"/>
+          <ellipse cx="64" cy="70" rx="10" ry="12" fill="#ffffff" opacity="0.2" clip-path="url(#buttonClip)"/>
+          <!-- Edge -->
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#b91c1c" stroke-width="1.5" opacity="0.5"/>
+          <!-- Calculator Icon in center -->
+          <g transform="translate(50, 40)" opacity="0.95">
+            <path d="M-8 -8 L8 -8 L8 8 L-8 8 Z" fill="none" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+            <line x1="-5" y1="-5" x2="5" y2="-5" stroke="white" stroke-width="1.5"/>
+            <circle cx="-3" cy="0" r="1" fill="white"/>
+            <circle cx="3" cy="0" r="1" fill="white"/>
+            <circle cx="-3" cy="4" r="1" fill="white"/>
+            <circle cx="3" cy="4" r="1" fill="white"/>
+          </g>
         </svg>
-        Calculate
+        
+        <!-- Text Below Orb -->
+        <div class="absolute left-1/2 -translate-x-1/2 mt-1 text-center w-32">
+          <span class="text-sm font-bold text-gray-800 group-hover:text-red-700 transition-colors">Calculate</span>
+        </div>
       </button>
     </div>
   </form>
@@ -93,12 +161,41 @@
   class="bg-white shadow-lg rounded-lg p-6 transition-all duration-300
          hover:shadow-xl border border-gray-100"
 >
-  <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
-    <svg class="w-5 h-5 mr-2 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-    </svg>
-    Calculation History
-  </h2>
+  <!-- Centered Header with Icon -->
+  <div class="text-center mb-6">
+    <div class="flex justify-center mb-3">
+      <svg class="h-12 w-12 filter drop-shadow-md" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="headerGloss2" cx="35%" cy="30%">
+            <stop offset="0%" style="stop-color:#fca5a5;stop-opacity:1" />
+            <stop offset="30%" style="stop-color:#dc2626;stop-opacity:1" />
+            <stop offset="70%" style="stop-color:#b91c1c;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#7f1d1d;stop-opacity:1" />
+          </radialGradient>
+          <radialGradient id="headerShine2" cx="50%" cy="50%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+            <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+          </radialGradient>
+          <clipPath id="headerClip2">
+            <circle cx="50" cy="50" r="42"/>
+          </clipPath>
+        </defs>
+        <circle cx="50" cy="50" r="42" fill="url(#headerGloss2)"/>
+        <ellipse cx="38" cy="32" rx="16" ry="20" fill="url(#headerShine2)" opacity="0.8" clip-path="url(#headerClip2)"/>
+        <ellipse cx="62" cy="68" rx="8" ry="10" fill="#ffffff" opacity="0.15" clip-path="url(#headerClip2)"/>
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#b91c1c" stroke-width="1.5" opacity="0.4"/>
+        <!-- Clipboard Icon -->
+        <rect x="35" y="25" width="30" height="40" rx="2" fill="none" stroke="white" stroke-width="3" opacity="0.95"/>
+        <rect x="42" y="20" width="16" height="8" rx="2" fill="white" opacity="0.95"/>
+        <line x1="40" y1="35" x2="60" y2="35" stroke="white" stroke-width="2.5" opacity="0.9"/>
+        <line x1="40" y1="43" x2="60" y2="43" stroke="white" stroke-width="2.5" opacity="0.9"/>
+        <line x1="40" y1="51" x2="55" y2="51" stroke="white" stroke-width="2.5" opacity="0.9"/>
+      </svg>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800">Calculation History</h2>
+  </div>
+
   <div class="overflow-x-auto rounded-lg border border-gray-200">
     <table class="min-w-full table-auto">
       <thead class="bg-gray-50">
@@ -430,9 +527,10 @@ document.addEventListener('DOMContentLoaded', function() {
       inputs
     };
 
-    // Show loading state in the button
+    // Show loading state - disable button and add loading overlay
     submitButton.disabled = true;
-    submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Calculating...';
+    submitButton.style.opacity = '0.6';
+    submitButton.style.cursor = 'not-allowed';
 
     try {
       const response = await fetch('/calculations', {
@@ -476,45 +574,3 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (error) {
       showError(error.message || 'Error creating calculation');
     } finally {
-      // Restore button state
-      submitButton.disabled = false;
-      submitButton.innerHTML = originalButtonContent;
-    }
-  });
-
-  // Initial load
-  loadCalculations();
-  
-  // Optional features:
-  
-  // 1. Auto-refresh every 30 seconds
-  // const refreshInterval = setInterval(loadCalculations, 30000);
-  
-  // 2. Add clear form button
-  const calcInputs = document.getElementById('calcInputs');
-  calcInputs.addEventListener('input', function() {
-    if (this.value.trim() !== '') {
-      // Show clear button when there's input
-      if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('clear-button')) {
-        const clearButton = document.createElement('button');
-        clearButton.type = 'button';
-        clearButton.className = 'clear-button absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600';
-        clearButton.innerHTML = '×';
-        clearButton.addEventListener('click', () => {
-          this.value = '';
-          this.focus();
-          clearButton.remove();
-        });
-        
-        // Make sure the input's parent is position relative
-        this.parentElement.style.position = 'relative';
-        this.parentElement.appendChild(clearButton);
-      }
-    } else if (this.nextElementSibling && this.nextElementSibling.classList.contains('clear-button')) {
-      // Remove clear button when input is empty
-      this.nextElementSibling.remove();
-    }
-  });
-});
-</script>
-{% endblock %}
