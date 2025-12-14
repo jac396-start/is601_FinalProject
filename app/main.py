@@ -17,7 +17,7 @@ The application follows a RESTful API design with proper separation of concerns:
 
 from contextlib import asynccontextmanager  # Used for startup/shutdown events
 from datetime import datetime, timezone, timedelta
-from uuid import UUID  i# For type validation of UUIDs in path parameters
+from uuid import UUID  # For type validation of UUIDs in path parameters
 from typing import List
 
 # FastAPI imports
@@ -330,7 +330,6 @@ def reports_page(request: Request):
     Note: Authentication is handled client-side via JavaScript
     """
     return templates.TemplateResponse("reports.html", {"request": request})
-
 # ------------------------------------------------------------------------------
 # Health Endpoint
 # ------------------------------------------------------------------------------

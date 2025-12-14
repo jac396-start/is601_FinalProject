@@ -213,6 +213,8 @@ def auth_headers(auth_token: str):
     Provide authentication headers for API testing.
     """
     return {"Authorization": f"Bearer {auth_token}"}
+
+'''
 ```
 
 ---
@@ -235,6 +237,7 @@ templates/
 
 tests/
   conftest.py           ← MODIFIED (added 3 fixtures)
+'''
 
 # ======================================================================================
 # FastAPI Server Fixture
