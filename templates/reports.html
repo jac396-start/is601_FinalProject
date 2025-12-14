@@ -1,0 +1,574 @@
+{% extends "layout.html" %}
+
+{% block title %}Reports & Statistics - Calculations App{% endblock %}
+
+{% block head %}
+<style>
+    /* Statistics Dashboard Styles */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card h3 {
+        margin: 0 0 0.5rem 0;
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    .stat-label {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Operations Grid */
+    .operations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .operation-item {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+    
+    .operation-count {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #dc2626;
+    }
+    
+    .operation-name {
+        color: #6b7280;
+        font-size: 0.875rem;
+        text-transform: capitalize;
+        margin-top: 0.25rem;
+    }
+    
+    /* Chart Container */
+    .chart-container {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .chart-container h2 {
+        margin-top: 0;
+        color: #1f2937;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* History Section */
+    .history-container {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Loading State */
+    .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+    
+    .loading::after {
+        content: '...';
+        animation: dots 1.5s steps(4, end) infinite;
+    }
+    
+    @keyframes dots {
+        0%, 20% { content: '.'; }
+        40% { content: '..'; }
+        60%, 100% { content: '...'; }
+    }
+    
+    /* Error Message */
+    .error-message {
+        background: #fef2f2;
+        color: #991b1b;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+        border-left: 4px solid #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+            <svg class="w-8 h-8 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Reports & Statistics
+        </h1>
+        <p class="mt-2 text-gray-600">Comprehensive analytics and insights into your calculations</p>
+    </div>
+    
+    <!-- Summary Statistics -->
+    <div class="stats-grid" id="statsContainer">
+        <div class="loading">Loading statistics</div>
+    </div>
+    
+    <!-- Operations Breakdown -->
+    <div class="chart-container">
+        <h2>Operations Breakdown</h2>
+        <div class="operations-grid" id="operationsGrid">
+            <div class="loading">Loading operations data</div>
+        </div>
+    </div>
+    
+    <!-- Daily Trends Chart -->
+    <div class="chart-container">
+        <h2>Daily Activity (Last 30 Days)</h2>
+        <canvas id="trendsChart" style="max-height: 300px;"></canvas>
+    </div>
+    
+    <!-- Recent History -->
+    <div class="history-container">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Calculation History</h2>
+        
+        <!-- Filters -->
+        <div class="bg-gray-50 p-4 rounded-lg mb-4 flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label for="operationFilter" class="block text-sm font-medium text-gray-700 mb-1">
+                    Filter by Operation:
+                </label>
+                <select id="operationFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    <option value="">All Operations</option>
+                    <option value="addition">Addition</option>
+                    <option value="subtraction">Subtraction</option>
+                    <option value="multiplication">Multiplication</option>
+                    <option value="division">Division</option>
+                </select>
+            </div>
+            
+            <div class="flex-1 min-w-[200px]">
+                <label for="pageSizeSelect" class="block text-sm font-medium text-gray-700 mb-1">
+                    Items per page:
+                </label>
+                <select id="pageSizeSelect" class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- History Table -->
+        <div id="historyTableContainer">
+            <div class="loading">Loading history</div>
+        </div>
+        
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center gap-2 mt-4 flex-wrap"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js for visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Global state
+    let currentPage = 1;
+    let pageSize = 10;
+    let operationFilter = '';
+    let trendsChart = null;
+    
+    // Check authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        loadStatistics();
+        loadHistory();
+        
+        // Setup filter event listeners
+        document.getElementById('operationFilter').addEventListener('change', function() {
+            operationFilter = this.value;
+            currentPage = 1;
+            loadHistory();
+        });
+        
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            loadHistory();
+        });
+    });
+    
+    /**
+     * Load and display comprehensive statistics
+     */
+    async function loadStatistics() {
+        try {
+            const token = localStorage.getItem('access_token');
+            
+            const response = await fetch('/api/statistics', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error('Failed to load statistics');
+            }
+            
+            const stats = await response.json();
+            displayStatistics(stats);
+            displayOperationsBreakdown(stats.operations_breakdown);
+            displayTrendsChart(stats.calculations_by_day);
+            
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+            document.getElementById('statsContainer').innerHTML = 
+                '<div class="error-message">Error loading statistics. Please refresh the page.</div>';
+        }
+    }
+    
+    /**
+     * Display summary statistics cards
+     */
+    function displayStatistics(stats) {
+        const container = document.getElementById('statsContainer');
+        
+        container.innerHTML = `
+            <div class="stat-card">
+                <h3>Total Calculations</h3>
+                <p class="stat-value">${stats.total_calculations}</p>
+                <p class="stat-label">All time</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Average Result</h3>
+                <p class="stat-value">${stats.average_result !== null ? stats.average_result.toFixed(2) : 'N/A'}</p>
+                <p class="stat-label">Across all operations</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Most Used Operation</h3>
+                <p class="stat-value" style="font-size: 1.5rem; text-transform: capitalize;">
+                    ${stats.most_used_operation || 'N/A'}
+                </p>
+                <p class="stat-label">Your favorite</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Average Inputs</h3>
+                <p class="stat-value" style="font-size: 1.5rem;">
+                    ${stats.average_inputs_count !== null ? stats.average_inputs_count.toFixed(1) : 'N/A'}
+                </p>
+                <p class="stat-label">Numbers per calculation</p>
+            </div>
+        `;
+    }
+    
+    /**
+     * Display operations breakdown grid
+     */
+    function displayOperationsBreakdown(breakdown) {
+        const container = document.getElementById('operationsGrid');
+        
+        if (Object.keys(breakdown).length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500 col-span-full">No operations yet</p>';
+            return;
+        }
+        
+        const operationNames = {
+            'addition': 'Addition',
+            'subtraction': 'Subtraction',
+            'multiplication': 'Multiplication',
+            'division': 'Division'
+        };
+        
+        container.innerHTML = Object.entries(breakdown)
+            .map(([operation, count]) => `
+                <div class="operation-item">
+                    <div class="operation-count">${count}</div>
+                    <div class="operation-name">${operationNames[operation] || operation}</div>
+                </div>
+            `).join('');
+    }
+    
+    /**
+     * Display daily trends chart using Chart.js
+     */
+    function displayTrendsChart(calculationsByDay) {
+        const ctx = document.getElementById('trendsChart');
+        
+        if (trendsChart) {
+            trendsChart.destroy();
+        }
+        
+        // Prepare data for last 30 days
+        const dates = [];
+        const counts = [];
+        const today = new Date();
+        
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            counts.push(calculationsByDay[dateStr] || 0);
+        }
+        
+        trendsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Calculations',
+                    data: counts,
+                    borderColor: '#dc2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Load and display calculation history with pagination
+     */
+    async function loadHistory() {
+        try {
+            const token = localStorage.getItem('access_token');
+            
+            const params = new URLSearchParams({
+                page: currentPage,
+                page_size: pageSize
+            });
+            
+            if (operationFilter) {
+                params.append('operation', operationFilter);
+            }
+            
+            const response = await fetch(`/api/history?${params}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error('Failed to load history');
+            }
+            
+            const history = await response.json();
+            displayHistory(history);
+            displayPagination(history);
+            
+        } catch (error) {
+            console.error('Error loading history:', error);
+            document.getElementById('historyTableContainer').innerHTML = 
+                '<div class="error-message">Error loading history. Please refresh the page.</div>';
+        }
+    }
+    
+    /**
+     * Display history table
+     */
+    function displayHistory(history) {
+        const container = document.getElementById('historyTableContainer');
+        
+        if (history.calculations.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500 py-8">No calculations found</p>';
+            return;
+        }
+        
+        const operationSymbols = {
+            'addition': '+',
+            'subtraction': '-',
+            'multiplication': '×',
+            'division': '÷'
+        };
+        
+        container.innerHTML = `
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operation</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inputs</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${history.calculations.map(calc => {
+                            const date = new Date(calc.created_at);
+                            const symbol = operationSymbols[calc.type.toLowerCase()] || calc.type;
+                            
+                            return `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        ${date.toLocaleString()}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                                        ${calc.type}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        ${calc.inputs.join(` ${symbol} `)}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        ${calc.result.toFixed(2)}
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    /**
+     * Display pagination controls
+     */
+    function displayPagination(history) {
+        const container = document.getElementById('pagination');
+        
+        if (history.total_pages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        let buttons = [];
+        
+        // Previous button
+        buttons.push(`
+            <button onclick="changePage(${currentPage - 1})" 
+                    ${currentPage === 1 ? 'disabled' : ''}
+                    class="px-4 py-2 text-sm font-medium rounded-md ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}">
+                ← Previous
+            </button>
+        `);
+        
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(history.total_pages, currentPage + 2);
+        
+        if (startPage > 1) {
+            buttons.push(`
+                <button onclick="changePage(1)" class="px-4 py-2 text-sm font-medium rounded-md bg-white text-gray-700 hover:bg-gray-50 border border-gray-300">
+                    1
+                </button>
+            `);
+            if (startPage > 2) {
+                buttons.push(`<span class="px-2 py-2 text-gray-500">...</span>`);
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            buttons.push(`
+                <button onclick="changePage(${i})" 
+                        class="px-4 py-2 text-sm font-medium rounded-md ${i === currentPage ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}">
+                    ${i}
+                </button>
+            `);
+        }
+        
+        if (endPage < history.total_pages) {
+            if (endPage < history.total_pages - 1) {
+                buttons.push(`<span class="px-2 py-2 text-gray-500">...</span>`);
+            }
+            buttons.push(`
+                <button onclick="changePage(${history.total_pages})" class="px-4 py-2 text-sm font-medium rounded-md bg-white text-gray-700 hover:bg-gray-50 border border-gray-300">
+                    ${history.total_pages}
+                </button>
+            `);
+        }
+        
+        // Next button
+        buttons.push(`
+            <button onclick="changePage(${currentPage + 1})" 
+                    ${currentPage === history.total_pages ? 'disabled' : ''}
+                    class="px-4 py-2 text-sm font-medium rounded-md ${currentPage === history.total_pages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}">
+                Next →
+            </button>
+        `);
+        
+        container.innerHTML = buttons.join('');
+    }
+    
+    /**
+     * Change to a different page
+     */
+    function changePage(page) {
+        currentPage = page;
+        loadHistory();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

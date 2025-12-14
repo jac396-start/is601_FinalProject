@@ -159,6 +159,84 @@ def seed_users(db_session: Session, request) -> List[User]:
     return users
 
 # ======================================================================================
+# Statistics Feature Test Fixtures
+# ======================================================================================
+@pytest.fixture
+def test_user_with_calculations(db_session: Session, test_user: User):
+    """
+    Create a test user with various calculations for statistics testing.
+    """
+    from app.models.calculation import Calculation
+
+    # Create mixed calculations
+    calc_types = [
+        ("addition", [10, 5, 3]),
+        ("addition", [20, 10]),
+        ("subtraction", [30, 10]),
+        ("multiplication", [5, 4]),
+        ("division", [100, 2])
+    ]
+
+    calculations = []
+    for calc_type, inputs in calc_types:
+        calc = Calculation.create(
+            calculation_type=calc_type,
+            user_id=test_user.id,
+            inputs=inputs
+        )
+        calc.result = calc.get_result()
+        db_session.add(calc)
+        calculations.append(calc)
+
+    db_session.commit()
+    logger.info(f"Created {len(calculations)} test calculations for user {test_user.id}")
+
+    return test_user, calculations
+
+
+@pytest.fixture
+def auth_token(test_user: User):
+    """
+    Generate an authentication token for the test user.
+    """
+    from app.auth.jwt import create_access_token
+
+    token = create_access_token(
+        data={"sub": str(test_user.id), "username": test_user.username}
+    )
+    return token
+
+
+@pytest.fixture
+def auth_headers(auth_token: str):
+    """
+    Provide authentication headers for API testing.
+    """
+    return {"Authorization": f"Bearer {auth_token}"}
+```
+
+---
+
+## 📋 VERIFICATION CHECKLIST
+
+After making these changes:
+
+### 1. **Verify File Structure**
+```
+app/
+  operations/
+    __init__.py          ← Should exist (empty is OK for now)
+    statistics.py        ← NEW FILE you created
+  main.py               ← MODIFIED (added 4 routes + imports)
+
+templates/
+  reports.html          ← NEW FILE you created
+  layout.html           ← MODIFIED (navigation + script)
+
+tests/
+  conftest.py           ← MODIFIED (added 3 fixtures)
+
+# ======================================================================================
 # FastAPI Server Fixture
 # ======================================================================================
 def find_available_port() -> int:

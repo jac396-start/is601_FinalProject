@@ -17,7 +17,7 @@ The application follows a RESTful API design with proper separation of concerns:
 
 from contextlib import asynccontextmanager  # Used for startup/shutdown events
 from datetime import datetime, timezone, timedelta
-from uuid import UUID  # For type validation of UUIDs in path parameters
+from uuid import UUID  i# For type validation of UUIDs in path parameters
 from typing import List
 
 # FastAPI imports
@@ -39,8 +39,14 @@ from app.schemas.calculation import CalculationBase, CalculationResponse, Calcul
 from app.schemas.token import TokenResponse  # API token schema
 from app.schemas.user import UserCreate, UserResponse, UserLogin  # User schemas
 from app.database import Base, get_db, engine  # Database connection
-
-
+from typing import List
+from typing import List, Optional
+from fastapi import Query, Path
+from app.operations.statistics import (
+    calculate_user_statistics,
+    get_paginated_history,
+    get_operation_statistics
+)
 # ------------------------------------------------------------------------------
 # Create tables on startup using the lifespan event
 # ------------------------------------------------------------------------------
@@ -161,6 +167,169 @@ def edit_calculation_page(request: Request, calc_id: str):
     """
     return templates.TemplateResponse("edit_calculation.html", {"request": request, "calc_id": calc_id})
 
+"""
+Statistics and History API Routes
+
+ADD these routes to your existing app/main.py file.
+
+INTEGRATION STEPS:
+1. Add these imports at the top of main.py (after your existing imports)
+2. Add these route definitions after your existing calculation routes
+3. Create app/operations/statistics.py with the statistics operations code
+
+Author: [Your Name]
+Date: December 2025
+"""
+
+# ========== ADD THESE IMPORTS AT TOP OF main.py ==========
+from app.operations.statistics import (
+    calculate_user_statistics,
+    get_paginated_history,
+    get_operation_statistics
+)
+from typing import Optional
+from fastapi import Query, Path
+
+
+# ========== ADD THESE ROUTES AFTER YOUR EXISTING CALCULATION ROUTES ==========
+
+@app.get(
+    "/api/statistics",
+    tags=["statistics"],
+    summary="Get User Statistics",
+    description="Retrieve comprehensive calculation statistics for the authenticated user"
+)
+def get_statistics(
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive statistics for current user's calculations.
+    
+    Returns detailed metrics including totals, averages, breakdowns,
+    and trends to support the Report/History dashboard feature.
+    
+    Returns:
+        Dict: Comprehensive statistics object including:
+            - total_calculations: Total count
+            - operations_breakdown: Count by type
+            - average_inputs_count: Average number of inputs
+            - average_result: Average result value
+            - most_used_operation: Most frequent operation
+            - recent_calculations: Last 10 calculations
+            - calculations_by_day: Daily trends for last 30 days
+    """
+    try:
+        statistics = calculate_user_statistics(db, current_user.id)
+        return JSONResponse(content=statistics)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error calculating statistics: {str(e)}"
+        )
+
+
+@app.get(
+    "/api/history",
+    tags=["statistics"],
+    summary="Get Calculation History",
+    description="Retrieve paginated calculation history with optional filtering"
+)
+def get_history(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    operation: Optional[str] = Query(None, description="Filter by operation type"),
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get paginated calculation history for current user.
+    
+    Supports pagination and filtering to efficiently browse large
+    calculation histories. Orders results by creation date (newest first).
+    
+    Args:
+        page: Page number to retrieve (1-indexed)
+        page_size: Number of items per page (1-100)
+        operation: Optional filter for operation type
+        
+    Returns:
+        Dict: Paginated history with metadata including:
+            - calculations: List of calculation objects
+            - total: Total count matching filters
+            - page: Current page number
+            - page_size: Items per page
+            - total_pages: Total number of pages
+    """
+    try:
+        history = get_paginated_history(
+            db=db,
+            user_id=current_user.id,
+            page=page,
+            page_size=page_size,
+            operation_filter=operation
+        )
+        return JSONResponse(content=history)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error retrieving history: {str(e)}"
+        )
+
+
+@app.get(
+    "/api/statistics/operation/{operation}",
+    tags=["statistics"],
+    summary="Get Operation-Specific Statistics",
+    description="Get detailed statistics for a specific operation type"
+)
+def get_operation_stats(
+    operation: str = Path(..., description="Operation type to analyze"),
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get detailed statistics for a specific operation type.
+    
+    Provides operation-specific metrics including counts, averages,
+    and ranges to support detailed analysis.
+    
+    Args:
+        operation: Type of operation to analyze (addition, subtraction, etc.)
+        
+    Returns:
+        Dict: Operation-specific statistics including:
+            - count: Number of calculations of this type
+            - average_inputs_count: Average number of inputs used
+            - average_result: Average result value
+            - min_result: Minimum result value
+            - max_result: Maximum result value
+    """
+    try:
+        stats = get_operation_statistics(db, current_user.id, operation)
+        return JSONResponse(content=stats)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error retrieving operation statistics: {str(e)}"
+        )
+
+
+# ========== ADD THIS HTML ROUTE FOR REPORTS PAGE ==========
+
+@app.get("/reports", response_class=HTMLResponse, tags=["web"])
+def reports_page(request: Request):
+    """
+    Render the Reports/Statistics page.
+    
+    Displays comprehensive analytics dashboard with charts,
+    statistics, and calculation history.
+    
+    Note: Authentication is handled client-side via JavaScript
+    """
+    return templates.TemplateResponse("reports.html", {"request": request})
 
 # ------------------------------------------------------------------------------
 # Health Endpoint
@@ -198,6 +367,7 @@ def register(user_create: UserCreate, db: Session = Depends(get_db)):
 # ------------------------------------------------------------------------------
 # User Login Endpoints
 # ------------------------------------------------------------------------------
+
 @app.post("/auth/login", response_model=TokenResponse, tags=["auth"])
 def login_json(user_login: UserLogin, db: Session = Depends(get_db)):
     """
@@ -393,6 +563,102 @@ def delete_calculation(
     db.commit()
     return None
 
+# ------------------------------------------------------------------------------
+# Statistics and History Endpoints (Reports Feature)
+# ------------------------------------------------------------------------------
+@app.get(
+    "/api/statistics",
+    tags=["statistics"],
+    summary="Get User Statistics"
+)
+def get_statistics(
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive statistics for current user's calculations.
+
+    Returns detailed metrics including totals, averages, breakdowns,
+    and trends to support the Report/History dashboard feature.
+    """
+    try:
+        statistics = calculate_user_statistics(db, current_user.id)
+        return JSONResponse(content=statistics)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error calculating statistics: {str(e)}"
+        )
+
+
+@app.get(
+    "/api/history",
+    tags=["statistics"],
+    summary="Get Calculation History"
+)
+def get_history(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    operation: Optional[str] = Query(None, description="Filter by operation type"),
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get paginated calculation history for current user.
+
+    Supports pagination and filtering to efficiently browse large
+    calculation histories. Orders results by creation date (newest first).
+    """
+    try:
+        history = get_paginated_history(
+            db=db,
+            user_id=current_user.id,
+            page=page,
+            page_size=page_size,
+            operation_filter=operation
+        )
+        return JSONResponse(content=history)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error retrieving history: {str(e)}"
+        )
+
+
+@app.get(
+    "/api/statistics/operation/{operation}",
+    tags=["statistics"],
+    summary="Get Operation-Specific Statistics"
+)
+def get_operation_stats(
+    operation: str = Path(..., description="Operation type to analyze"),
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get detailed statistics for a specific operation type.
+    """
+    try:
+        stats = get_operation_statistics(db, current_user.id, operation)
+        return JSONResponse(content=stats)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error retrieving operation statistics: {str(e)}"
+        )
+
+
+@app.get("/reports", response_class=HTMLResponse, tags=["web"])
+def reports_page(request: Request):
+    """
+    Render the Reports/Statistics page.
+
+    Displays comprehensive analytics dashboard with charts,
+    statistics, and calculation history.
+    """
+    return templates.TemplateResponse("reports.html", {"request": request})
 
 # ------------------------------------------------------------------------------
 # Main Block to Run the Server
