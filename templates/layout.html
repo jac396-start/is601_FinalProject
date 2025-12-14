@@ -125,19 +125,10 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 
-  <!-- Global Scripts -->
+ <!-- Global Scripts -->
   <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Brand link adjustment based on auth status
-    const brandLink = document.getElementById('brandLink');
-    if (brandLink) {
-      const token = localStorage.getItem('access_token');
-      // If user is logged in, set the brand link to /dashboard
-      if (token) {
-        brandLink.href = '/dashboard';
-      }
-    }
-// Brand link adjustment based on auth status
     const brandLink = document.getElementById('brandLink');
     if (brandLink) {
       const token = localStorage.getItem('access_token');
@@ -192,7 +183,9 @@
             localStorage.clear();
             
             // Show toast notification
-            showToast('Logged out successfully', 'success');
+            if (typeof showToast === 'function') {
+              showToast('Logged out successfully', 'success');
+            }
             
             // Redirect after a short delay
             setTimeout(() => {
@@ -240,22 +233,24 @@
 
       // Add to container
       const container = document.getElementById('toastContainer');
-      container.appendChild(toast);
+      if (container) {
+        container.appendChild(toast);
 
-      // Transition in
-      setTimeout(() => {
-        toast.classList.remove('opacity-0', 'translate-y-2');
-      }, 10);
+        // Transition in
+        setTimeout(() => {
+          toast.classList.remove('opacity-0', 'translate-y-2');
+        }, 10);
 
-      // Attach close button handler
-      toast.querySelector('button').addEventListener('click', () => {
-        removeToast(toast);
-      });
+        // Attach close button handler
+        toast.querySelector('button').addEventListener('click', () => {
+          removeToast(toast);
+        });
 
-      // Auto-remove after duration
-      setTimeout(() => {
-        removeToast(toast);
-      }, duration);
+        // Auto-remove after duration
+        setTimeout(() => {
+          removeToast(toast);
+        }, duration);
+      }
     }
 
     function removeToast(toast) {
@@ -266,7 +261,7 @@
     }
   });
   </script>
-
+  
   {% block scripts %}{% endblock %}
 </body>
 </html>
