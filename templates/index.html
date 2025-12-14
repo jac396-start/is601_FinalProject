@@ -25,7 +25,7 @@
         <a href="{{ url_for('login_page') }}" 
            class="bg-red-700 text-white px-8 py-3 rounded-md hover:bg-red-800 transition-colors duration-200
                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 font-medium
-                 flex items-center w-full sm:w-auto justify-center">
+                 flex items-center w-full sm:w-auto justify-center shadow-lg hover:shadow-xl">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
@@ -33,9 +33,9 @@
           Login
         </a>
         <a href="{{ url_for('register_page') }}" 
-           class="bg-gray-100 text-gray-800 border border-gray-300 px-8 py-3 rounded-md hover:bg-gray-200 
-                 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 
-                 focus:ring-gray-500 font-medium flex items-center w-full sm:w-auto justify-center">
+           class="bg-gray-50 text-gray-800 border-2 border-gray-200 px-8 py-3 rounded-md hover:bg-white hover:border-gray-300
+                 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                 focus:ring-gray-500 font-medium flex items-center w-full sm:w-auto justify-center shadow-md hover:shadow-lg">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -48,16 +48,45 @@
   
   <!-- Features Section -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Feature Card 1 -->
-    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:shadow-lg transition-shadow hover:scale-105 transform duration-200">
+    <!-- Feature Card 1 - Glossy Red Orb -->
+    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:shadow-xl transition-all hover:scale-105 transform duration-200">
       <div class="flex items-center justify-center mb-4 mx-auto">
-        <svg class="h-16 w-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Filled orb (full circle) -->
-          <circle cx="50" cy="50" r="45" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
-          <!-- Gradient effect -->
-          <circle cx="50" cy="50" r="40" fill="#FCA5A5" opacity="0.3"/>
-          <!-- Inner highlight -->
-          <circle cx="40" cy="35" r="12" fill="#FECACA" opacity="0.6"/>
+        <svg class="h-16 w-16 filter drop-shadow-lg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Glossy gradient for filled orb -->
+            <radialGradient id="glossyRed1" cx="35%" cy="30%">
+              <stop offset="0%" style="stop-color:#fca5a5;stop-opacity:1" />
+              <stop offset="30%" style="stop-color:#dc2626;stop-opacity:1" />
+              <stop offset="70%" style="stop-color:#b91c1c;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7f1d1d;stop-opacity:1" />
+            </radialGradient>
+            <!-- Shine/highlight -->
+            <radialGradient id="shine1" cx="50%" cy="50%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+              <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.3" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </radialGradient>
+            <!-- Shadow filter -->
+            <filter id="shadow1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+              <feOffset dx="0" dy="2" result="offsetblur"/>
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="0.3"/>
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <!-- Main orb body -->
+          <circle cx="50" cy="50" r="42" fill="url(#glossyRed1)" filter="url(#shadow1)"/>
+          <!-- Glossy highlight (top-left) -->
+          <ellipse cx="38" cy="32" rx="16" ry="20" fill="url(#shine1)" opacity="0.8"/>
+          <!-- Subtle reflection (bottom-right) -->
+          <ellipse cx="62" cy="68" rx="8" ry="10" fill="#ffffff" opacity="0.15"/>
+          <!-- Outer rim for depth -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#b91c1c" stroke-width="1.5" opacity="0.4"/>
         </svg>
       </div>
       <h2 class="text-xl font-semibold text-gray-800 text-center mb-2">Simple Calculations</h2>
@@ -66,15 +95,33 @@
       </p>
     </div>
     
-    <!-- Feature Card 2 -->
-    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:shadow-lg transition-shadow hover:scale-105 transform duration-200">
+    <!-- Feature Card 2 - Glossy Hollow Orb -->
+    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:shadow-xl transition-all hover:scale-105 transform duration-200">
       <div class="flex items-center justify-center mb-4 mx-auto">
-        <svg class="h-16 w-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Hollow orb (outline circle) -->
-          <circle cx="50" cy="50" r="45" fill="none" stroke="#DC2626" stroke-width="3"/>
-          <!-- Inner rings for hollow effect -->
-          <circle cx="50" cy="50" r="35" fill="none" stroke="#FCA5A5" stroke-width="1" opacity="0.5"/>
-          <circle cx="50" cy="50" r="25" fill="none" stroke="#FCA5A5" stroke-width="1" opacity="0.3"/>
+        <svg class="h-16 w-16 filter drop-shadow-lg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Glass-like gradient for hollow orb -->
+            <radialGradient id="glassRed2" cx="35%" cy="30%">
+              <stop offset="0%" style="stop-color:#fecaca;stop-opacity:0.3" />
+              <stop offset="50%" style="stop-color:#fca5a5;stop-opacity:0.5" />
+              <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0.8" />
+            </radialGradient>
+            <radialGradient id="glassShine2" cx="40%" cy="35%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+              <stop offset="60%" style="stop-color:#ffffff;stop-opacity:0" />
+            </radialGradient>
+          </defs>
+          <!-- Outer ring with glass effect -->
+          <circle cx="50" cy="50" r="42" fill="url(#glassRed2)" stroke="#dc2626" stroke-width="3"/>
+          <!-- Inner hollow -->
+          <circle cx="50" cy="50" r="32" fill="#ffffff" opacity="0.9"/>
+          <!-- Glass shine -->
+          <ellipse cx="40" cy="35" rx="18" ry="22" fill="url(#glassShine2)"/>
+          <!-- Inner rings for depth -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#fca5a5" stroke-width="0.8" opacity="0.6"/>
+          <circle cx="50" cy="50" r="28" fill="none" stroke="#dc2626" stroke-width="1.5" opacity="0.4"/>
+          <!-- Subtle bottom shadow inside -->
+          <ellipse cx="50" cy="62" rx="20" ry="8" fill="#b91c1c" opacity="0.1"/>
         </svg>
       </div>
       <h2 class="text-xl font-semibold text-gray-800 text-center mb-2">Save History</h2>
@@ -83,15 +130,38 @@
       </p>
     </div>
     
-    <!-- Feature Card 3 -->
-    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:shadow-lg transition-shadow hover:scale-105 transform duration-200">
+    <!-- Feature Card 3 - Glossy Half-filled Orb -->
+    <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:shadow-xl transition-all hover:scale-105 transform duration-200">
       <div class="flex items-center justify-center mb-4 mx-auto">
-        <svg class="h-16 w-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Half-filled orb -->
-          <circle cx="50" cy="50" r="45" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
-          <path d="M 50 5 A 45 45 0 0 1 50 95 L 50 50 Z" fill="#FCA5A5" opacity="0.5"/>
-          <!-- Highlight -->
-          <circle cx="40" cy="35" r="10" fill="#FECACA" opacity="0.7"/>
+        <svg class="h-16 w-16 filter drop-shadow-lg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Liquid gradient for half-filled orb -->
+            <linearGradient id="liquidRed3" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#fca5a5;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:1" />
+            </linearGradient>
+            <radialGradient id="liquidShine3" cx="30%" cy="25%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="40%" style="stop-color:#ffffff;stop-opacity:0.4" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </radialGradient>
+            <!-- Wave pattern for liquid effect -->
+            <clipPath id="waveClip">
+              <path d="M 8 50 Q 20 45, 32 50 T 56 50 T 80 50 T 104 50 L 104 100 L 8 100 Z"/>
+            </clipPath>
+          </defs>
+          <!-- Upper glass part (clear/white) -->
+          <circle cx="50" cy="50" r="42" fill="#fafafa" stroke="#dc2626" stroke-width="2.5"/>
+          <!-- Liquid fill (bottom half with wave) -->
+          <circle cx="50" cy="50" r="42" fill="url(#liquidRed3)" clip-path="url(#waveClip)" opacity="0.95"/>
+          <!-- Glossy highlights -->
+          <ellipse cx="38" cy="32" rx="16" ry="20" fill="url(#liquidShine3)" opacity="0.7"/>
+          <ellipse cx="62" cy="68" rx="10" ry="8" fill="#ffffff" opacity="0.2"/>
+          <!-- Surface tension line (meniscus) -->
+          <path d="M 12 50 Q 25 47, 38 49 T 64 49 T 88 50" stroke="#b91c1c" stroke-width="1.5" fill="none" opacity="0.6"/>
+          <!-- Outer rim -->
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#b91c1c" stroke-width="1" opacity="0.3"/>
         </svg>
       </div>
       <h2 class="text-xl font-semibold text-gray-800 text-center mb-2">Edit & Update</h2>
@@ -106,17 +176,40 @@
     <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">How It Works</h2>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Step 1 -->
+      <!-- Step 1 - Premium Glossy Orb -->
       <div class="flex flex-col items-center">
-        <svg class="h-24 w-24 mb-4" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Filled orb (full circle) -->
-          <circle cx="50" cy="50" r="40" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
-          <!-- Gradient depth -->
-          <circle cx="50" cy="50" r="35" fill="#FCA5A5" opacity="0.2"/>
-          <!-- Highlight shine -->
-          <circle cx="35" cy="30" r="8" fill="#FECACA" opacity="0.8"/>
-          <!-- Number -->
-          <text x="50" y="58" font-size="32" font-weight="bold" fill="#DC2626" text-anchor="middle">1</text>
+        <svg class="h-24 w-24 mb-4 filter drop-shadow-xl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="premiumRed1" cx="32%" cy="28%">
+              <stop offset="0%" style="stop-color:#fee2e2;stop-opacity:1" />
+              <stop offset="20%" style="stop-color:#fca5a5;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+              <stop offset="80%" style="stop-color:#b91c1c;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7f1d1d;stop-opacity:1" />
+            </radialGradient>
+            <radialGradient id="premiumShine1" cx="50%" cy="50%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="40%" style="stop-color:#ffffff;stop-opacity:0.5" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </radialGradient>
+            <filter id="glow1">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <!-- Main sphere -->
+          <circle cx="50" cy="50" r="40" fill="url(#premiumRed1)" filter="url(#glow1)"/>
+          <!-- Primary highlight -->
+          <ellipse cx="36" cy="30" rx="18" ry="24" fill="url(#premiumShine1)" opacity="0.85"/>
+          <!-- Secondary reflection -->
+          <ellipse cx="64" cy="70" rx="10" ry="12" fill="#ffffff" opacity="0.2"/>
+          <!-- Crisp edge -->
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#b91c1c" stroke-width="1.5" opacity="0.5"/>
+          <!-- Number with shadow -->
+          <text x="50" y="62" font-size="36" font-weight="bold" fill="#ffffff" text-anchor="middle" opacity="0.95" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3)">1</text>
         </svg>
         <h3 class="text-lg font-semibold text-gray-800 mb-2">Create Account</h3>
         <p class="text-gray-600 text-center">
@@ -124,16 +217,37 @@
         </p>
       </div>
       
-      <!-- Step 2 -->
+      <!-- Step 2 - Crystal Clear Glass Orb -->
       <div class="flex flex-col items-center">
-        <svg class="h-24 w-24 mb-4" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Hollow orb (outline) -->
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#DC2626" stroke-width="2.5"/>
-          <!-- Inner rings for depth -->
-          <circle cx="50" cy="50" r="32" fill="none" stroke="#FCA5A5" stroke-width="1" opacity="0.6"/>
-          <circle cx="50" cy="50" r="24" fill="none" stroke="#FCA5A5" stroke-width="0.5" opacity="0.3"/>
+        <svg class="h-24 w-24 mb-4 filter drop-shadow-xl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="crystalRed2" cx="50%" cy="50%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.2" />
+              <stop offset="60%" style="stop-color:#fca5a5;stop-opacity:0.4" />
+              <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0.7" />
+            </radialGradient>
+            <radialGradient id="crystalShine2" cx="38%" cy="32%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.3" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </radialGradient>
+          </defs>
+          <!-- Glass sphere base -->
+          <circle cx="50" cy="50" r="40" fill="url(#crystalRed2)"/>
+          <!-- Thick glass rim -->
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#dc2626" stroke-width="3.5" opacity="0.8"/>
+          <!-- Inner white core -->
+          <circle cx="50" cy="50" r="30" fill="#ffffff" opacity="0.95"/>
+          <!-- Multiple glass layers -->
+          <circle cx="50" cy="50" r="35" fill="none" stroke="#fca5a5" stroke-width="1" opacity="0.5"/>
+          <circle cx="50" cy="50" r="26" fill="none" stroke="#dc2626" stroke-width="2" opacity="0.4"/>
+          <!-- Crystal highlights -->
+          <ellipse cx="38" cy="30" rx="16" ry="22" fill="url(#crystalShine2)"/>
+          <ellipse cx="62" cy="65" rx="8" ry="10" fill="#ffffff" opacity="0.3"/>
+          <!-- Inner shadow for depth -->
+          <ellipse cx="50" cy="65" rx="22" ry="10" fill="#b91c1c" opacity="0.08"/>
           <!-- Number -->
-          <text x="50" y="58" font-size="32" font-weight="bold" fill="#DC2626" text-anchor="middle">2</text>
+          <text x="50" y="62" font-size="36" font-weight="bold" fill="#dc2626" text-anchor="middle" opacity="0.9">2</text>
         </svg>
         <h3 class="text-lg font-semibold text-gray-800 mb-2">Enter Values</h3>
         <p class="text-gray-600 text-center">
@@ -141,21 +255,44 @@
         </p>
       </div>
       
-      <!-- Step 3 -->
+      <!-- Step 3 - Liquid Mercury Orb -->
       <div class="flex flex-col items-center">
-        <svg class="h-24 w-24 mb-4" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Gradient-filled orb -->
+        <svg class="h-24 w-24 mb-4 filter drop-shadow-xl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <radialGradient id="orbGradient" cx="35%" cy="35%">
-              <stop offset="0%" style="stop-color:#FECACA;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#FCA5A5;stop-opacity:1" />
+            <radialGradient id="mercuryRed3" cx="30%" cy="25%">
+              <stop offset="0%" style="stop-color:#fecaca;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#fca5a5;stop-opacity:1" />
+              <stop offset="60%" style="stop-color:#dc2626;stop-opacity:1" />
+              <stop offset="90%" style="stop-color:#b91c1c;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#991b1b;stop-opacity:1" />
             </radialGradient>
+            <radialGradient id="mercuryShine3" cx="45%" cy="40%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+              <stop offset="35%" style="stop-color:#ffffff;stop-opacity:0.6" />
+              <stop offset="70%" style="stop-color:#fca5a5;stop-opacity:0.3" />
+              <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0" />
+            </radialGradient>
+            <filter id="liquidGlow">
+              <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
-          <circle cx="50" cy="50" r="40" fill="url(#orbGradient)" stroke="#DC2626" stroke-width="2"/>
-          <!-- Highlight -->
-          <circle cx="32" cy="32" r="10" fill="#FECACA" opacity="0.6"/>
-          <!-- Number -->
-          <text x="50" y="58" font-size="32" font-weight="bold" fill="#DC2626" text-anchor="middle">3</text>
+          <!-- Liquid sphere -->
+          <circle cx="50" cy="50" r="40" fill="url(#mercuryRed3)" filter="url(#liquidGlow)"/>
+          <!-- Primary liquid shine -->
+          <ellipse cx="35" cy="28" rx="20" ry="26" fill="url(#mercuryShine3)" opacity="0.9"/>
+          <!-- Liquid reflection spots -->
+          <circle cx="42" cy="36" r="8" fill="#ffffff" opacity="0.6"/>
+          <circle cx="58" cy="45" r="5" fill="#ffffff" opacity="0.4"/>
+          <ellipse cx="65" cy="72" rx="12" ry="10" fill="#ffffff" opacity="0.15"/>
+          <!-- Surface tension edge -->
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#b91c1c" stroke-width="1.8" opacity="0.6"/>
+          <circle cx="50" cy="50" r="39" fill="none" stroke="#fca5a5" stroke-width="0.5" opacity="0.4"/>
+          <!-- Number with liquid effect -->
+          <text x="50" y="62" font-size="36" font-weight="bold" fill="#ffffff" text-anchor="middle" opacity="0.95" style="text-shadow: 0 3px 6px rgba(0,0,0,0.4), 0 1px 2px rgba(255,255,255,0.3)">3</text>
         </svg>
         <h3 class="text-lg font-semibold text-gray-800 mb-2">View Results</h3>
         <p class="text-gray-600 text-center">
@@ -166,22 +303,22 @@
   </div>
   
   <!-- Call to Action -->
-  <div class="bg-red-700 rounded-lg shadow-lg p-8 text-center">
+  <div class="bg-gradient-to-r from-red-700 to-red-600 rounded-lg shadow-xl p-8 text-center">
     <h2 class="text-2xl font-bold text-white mb-4">Ready to Get Started?</h2>
-    <p class="text-red-100 text-lg mb-6 max-w-2xl mx-auto">
+    <p class="text-red-50 text-lg mb-6 max-w-2xl mx-auto">
       Join now and start organizing all your calculations in one place.
     </p>
     <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
       <a href="{{ url_for('register_page') }}" 
-         class="bg-white text-red-700 px-8 py-3 rounded-md hover:bg-gray-100 transition-colors duration-200
+         class="bg-white text-red-700 px-8 py-3 rounded-md hover:bg-gray-50 transition-all duration-200
                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white font-medium
-               flex items-center w-full sm:w-auto justify-center">
+               flex items-center w-full sm:w-auto justify-center shadow-lg hover:shadow-2xl hover:scale-105 transform">
         Create Free Account
       </a>
       <a href="{{ url_for('login_page') }}" 
-         class="bg-transparent text-white border border-white px-8 py-3 rounded-md hover:bg-red-600 
-               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 
-               focus:ring-white font-medium flex items-center w-full sm:w-auto justify-center">
+         class="bg-transparent text-white border-2 border-white px-8 py-3 rounded-md hover:bg-red-600 hover:border-red-500
+               transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 
+               focus:ring-white font-medium flex items-center w-full sm:w-auto justify-center shadow-md hover:shadow-lg hover:scale-105 transform">
         Sign In
       </a>
     </div>
