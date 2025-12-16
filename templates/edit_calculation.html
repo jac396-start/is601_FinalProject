@@ -2,413 +2,215 @@
 {% block title %}Edit Calculation{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto pt-8">
+<div class="container mt-4" id="edit-calculation" data-calc-id="{{ calc_id }}">
+  <h2>Edit Calculation</h2>
+  <p class="text-muted">Update operation type and inputs; preview recalculated result before saving.</p>
 
-  <div 
-    id="errorAlert" 
-    class="hidden bg-red-100 border border-red-500 text-red-800 
-           px-4 py-3 rounded-md mb-4"
-  >
-    <div class="flex items-center">
-      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-      </svg>
-      <span id="errorMessage"></span>
+  <a class="btn btn-link" href="/dashboard">← Back to Dashboard</a>
+
+  <div id="alert" class="alert d-none" role="alert"></div>
+
+  <!-- Current data -->
+  <div class="card mb-3">
+    <div class="card-header">Current Calculation</div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Type:</dt>
+        <dd class="col-sm-9" id="current-type">Loading…</dd>
+
+        <dt class="col-sm-3">Inputs:</dt>
+        <dd class="col-sm-9" id="current-inputs">Loading…</dd>
+
+        <dt class="col-sm-3">Result:</dt>
+        <dd class="col-sm-9" id="current-result">Loading…</dd>
+      </dl>
     </div>
   </div>
 
-  <div 
-    id="successAlert" 
-    class="hidden bg-green-100 border border-green-500 text-green-800 
-           px-4 py-3 rounded-md mb-4"
-  >
-    <div class="flex items-center">
-      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-      </svg>
-      <span id="successMessage"></span>
-    </div>
-  </div>
-
-  <div 
-    id="loadingState"
-    class="bg-white shadow-lg rounded-lg p-8 text-center"
-  >
-    <svg class="animate-spin h-10 w-10 mx-auto mb-4 text-red-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-    <p class="text-gray-600">Loading calculation...</p>
-  </div>
-
-  <div 
-    id="editForm"
-    class="hidden bg-white shadow-lg rounded-lg p-6 border border-gray-100"
-  >
-    <div class="flex items-center justify-between mb-6 pb-4 border-b">
-      <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-        <svg class="w-6 h-6 mr-2 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-        </svg>
-        Edit Calculation
-      </h2>
-      <a 
-        href="/dashboard"
-        class="text-red-700 hover:text-red-800 font-medium flex items-center"
-      >
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        Back to Dashboard
-      </a>
-    </div>
-
-    <div class="bg-red-50 p-4 rounded-lg mb-6">
-      <h3 class="text-sm font-semibold text-gray-700 mb-2">Current Calculation</h3>
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-600">Type: <span id="currentType" class="font-medium capitalize"></span></p>
-          <p class="text-sm text-gray-600">Inputs: <span id="currentInputs" class="font-medium"></span></p>
-        </div>
-        <div class="text-right">
-          <p class="text-sm text-gray-600">Result:</p>
-          <p id="currentResult" class="text-2xl font-bold text-red-700"></p>
-        </div>
-      </div>
-    </div>
-
-    <form id="updateForm" class="space-y-5">
-      <div>
-        <label for="calcType" class="block text-sm font-medium text-gray-700 mb-2">
-          Operation Type
-          <span class="text-red-500">*</span>
-        </label>
-        <select
-          id="calcType"
-          name="operation_type"
-          required
-          class="block w-full rounded-md border-gray-300 shadow-sm 
-                 focus:border-red-500 focus:ring-red-500 py-2 px-3 capitalize"
-        >
+  <!-- Edit form -->
+  <form id="edit-form" class="card">
+    <div class="card-header">Edit</div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label for="operation" class="form-label">Operation Type *</nlabel>
+        <select id="operation" name="type" class="form-select" required>
           <option value="addition">Addition</option>
           <option value="subtraction">Subtraction</option>
           <option value="multiplication">Multiplication</option>
           <option value="division">Division</option>
         </select>
-        <p class="mt-1 text-xs text-gray-500">
-          Note: Changing the operation type will re-calculate the result.
-        </p>
+        <div class="form-text">Changing the operation type will re-calculate the result.</div>
       </div>
 
-      <div>
-        <label for="calcInputs" class="block text-sm font-medium text-gray-700 mb-2">
-          Numbers (comma-separated)
-          <span class="text-red-500">*</span>
-        </label>
-        <input 
-          type="text" 
-          id="calcInputs" 
-          name="inputs"
-          placeholder="e.g. 5, 10, 15"
-          required
-          class="block w-full rounded-md border-gray-300 shadow-sm 
-                 focus:border-red-500 focus:ring-red-500 py-2 px-3"
-        />
-        <p class="mt-1 text-xs text-gray-500">
-          Enter at least two numbers separated by commas
-        </p>
+      <div class="mb-3">
+        <label for="numbers" class="form-label">Numbers (comma-separated) *</label>
+        <input id="numbers" name="inputs" type="text" class="form-control" placeholder="e.g. 12, 3, 2" required />
+        <div class="form-text">Enter at least two numbers separated by commas.</div>
       </div>
 
-      <div id="previewSection" class="hidden bg-gray-50 p-4 rounded-lg">
-        <h3 class="text-sm font-semibold text-gray-700 mb-2">Preview</h3>
-        <p class="text-sm text-gray-600">New calculation: <span id="previewExpression" class="font-mono font-medium"></span></p>
-        <p class="text-sm text-gray-600 mt-1">Estimated result: <span id="previewResult" class="font-bold text-red-700"></span></p>
+      <!-- Preview -->
+      <div class="border rounded p-3 bg-light">
+        <h6 class="mb-2">Preview</h6>
+        <div><strong>New calculation:</strong> <span id="preview-expression">—</span></div>
+        <div><strong>Estimated result:</strong> <span id="preview-result">—</span></div>
       </div>
-
-      <div class="flex space-x-3 pt-4">
-        <button 
-          type="submit"
-          class="bg-red-700 text-white px-6 py-2 rounded-md 
-                 hover:bg-red-800 transition-colors font-medium flex items-center"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          Save Changes
-        </button>
-        <a 
-          href="/dashboard"
-          class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md 
-                 hover:bg-gray-400 transition-colors font-medium flex items-center"
-        >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          Cancel
-        </a>
-      </div>
-    </form>
-  </div>
+    </div>
+    <div class="card-footer d-flex gap-2">
+      <button type="submit" class="btn btn-primary" id="save-btn">Save Changes</button>
+      <a class="btn btn-outline-secondary" href="/dashboard">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', async function() {
-  // Global configuration (assumed to be correct from script.js)
-  const API_BASE_URL = window.location.origin;
-  
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    window.location.href = '/login';
-    return;
+(function() {
+  const root = document.getElementById('edit-calculation');
+  const calcId = root?.dataset?.calcId;
+  const currentTypeEl = document.getElementById('current-type');
+  const currentInputsEl = document.getElementById('current-inputs');
+  const currentResultEl = document.getElementById('current-result');
+  const operationEl = document.getElementById('operation');
+  const numbersEl = document.getElementById('numbers');
+  const previewExprEl = document.getElementById('preview-expression');
+  const previewResultEl = document.getElementById('preview-result');
+  const alertEl = document.getElementById('alert');
+  const formEl = document.getElementById('edit-form');
+
+  function getToken() {
+    try {
+      return localStorage.getItem('access_token'); // adjust if using a different key
+    } catch { return null; }
+  }
+  function authHeaders() {
+    const token = getToken();
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+  function showAlert(kind, msg) {
+    alertEl.className = `alert alert-${kind}`;
+    alertEl.textContent = msg;
+    alertEl.classList.remove('d-none');
   }
 
-  // Get the calculation ID from the template variable passed by the server
-  const calcId = "{{ calc_id }}";
-  let originalCalculation = null;
-
-  // DOM Elements
-  const loadingState = document.getElementById('loadingState');
-  const editFormDiv = document.getElementById('editForm');
-  const form = document.getElementById('updateForm');
-  const calcTypeSelect = document.getElementById('calcType'); // Changed ID reference
-  const calcInputsInput = document.getElementById('calcInputs');
-
-
-  // --- Helper Functions ---
-
-  function showAlert(type, msg) {
-    const errorAlert = document.getElementById('errorAlert');
-    const successAlert = document.getElementById('successAlert');
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
-
-    errorAlert.classList.add('hidden');
-    successAlert.classList.add('hidden');
-    
-    if (type === 'error') {
-        errorMessage.textContent = msg;
-        errorAlert.classList.remove('hidden');
-        errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else if (type === 'success') {
-        successMessage.textContent = msg;
-        successAlert.classList.remove('hidden');
-        successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+  function parseInputs(text) {
+    return text
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .map(Number)
+      .filter(n => !Number.isNaN(n));
   }
 
-  function showError(msg) {
-    showAlert('error', msg);
-  }
+  function computePreview(type, inputs) {
+    if (!Array.isArray(inputs) || inputs.length < 2) return { expr: '—', result: '—' };
+    let result = inputs[0];
+    let expr = String(inputs[0]);
 
-  function showSuccess(msg) {
-    showAlert('success', msg);
-  }
-
-  function getOperatorSymbol(type) {
-    const symbols = {
-      'addition': '+',
-      'subtraction': '-',
-      'multiplication': '×',
-      'division': '÷'
-    };
-    return symbols[type] || '?';
-  }
-  
-  // NOTE: This client-side calculation should mirror your back-end logic
-  function calculateResult(type, inputs) {
-    if (!inputs || inputs.length < 2) return null;
-    
-    let result;
-    const numbers = inputs.map(Number);
-
-    switch(type) {
+    switch (type) {
       case 'addition':
-        result = numbers.reduce((a, b) => a + b, 0);
+        result = inputs.reduce((acc, v) => acc + v, 0);
+        expr = inputs.join(' + ');
         break;
       case 'subtraction':
-        result = numbers.reduce((a, b) => a - b);
+        for (let i = 1; i < inputs.length; i++) result -= inputs[i];
+        expr = inputs.join(' - ');
         break;
       case 'multiplication':
-        result = numbers.reduce((a, b) => a * b, 1);
+        result = inputs.reduce((acc, v) => acc * v, 1);
+        expr = inputs.join(' × ');
         break;
       case 'division':
-        // Check for division by zero after the first element
-        const hasZeroDivisor = numbers.slice(1).some(b => b === 0);
-        if (hasZeroDivisor) return 'Error: Div by Zero';
-        result = numbers.reduce((a, b) => a / b);
-        break;
+        for (let i = 1; i < inputs.length; i++) {
+          if (inputs[i] === 0) return { expr: expr + ' / 0', result: 'Error: Cannot divide by zero!' };
+          result /= inputs[i];
+          expr += ' / ' + inputs[i];
+        }
+        return { expr, result };
       default:
-        return null;
+        return { expr: '—', result: '—' };
     }
-    // Use a consistent precision for display
-    return isNaN(result) ? 'Error' : parseFloat(result.toFixed(5));
+    return { expr, result };
   }
-  
-  // Function to update the Preview section (now uses calcTypeSelect)
+
   function updatePreview() {
-    const inputString = calcInputsInput.value.trim();
-    const previewSection = document.getElementById('previewSection');
-    const previewExpression = document.getElementById('previewExpression');
-    const previewResult = document.getElementById('previewResult');
+    const type = operationEl.value;
+    const inputs = parseInputs(numbersEl.value);
+    const { expr, result } = computePreview(type, inputs);
+    previewExprEl.textContent = expr;
+    previewResultEl.textContent = result;
+  }
 
-    if (!inputString) {
-        previewSection.classList.add('hidden');
-        return;
-    }
-    
+  async function loadCalculation() {
     try {
-        const type = calcTypeSelect.value; // Get value from the <select> element
-        const inputs = inputString.split(',').map(s => {
-            const num = parseFloat(s.trim());
-            if (isNaN(num)) throw new Error('Invalid number format.');
-            return num;
-        });
+      const res = await fetch(`/calculations/${calcId}`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json', ...authHeaders() }
+      });
+      if (!res.ok) throw new Error(`Failed to load (status ${res.status})`);
+      const calc = await res.json();
+      currentTypeEl.textContent = calc.type;
+      currentInputsEl.textContent = Array.isArray(calc.inputs) ? calc.inputs.join(', ') : '—';
+      currentResultEl.textContent = (calc.result ?? '—');
 
-        if (inputs.length < 2) {
-            throw new Error('Need at least two numbers.');
-        }
-
-        const symbol = getOperatorSymbol(type);
-        const expression = inputs.join(` ${symbol} `);
-        const result = calculateResult(type, inputs);
-
-        previewExpression.textContent = expression;
-        previewResult.textContent = result;
-        previewSection.classList.remove('hidden');
-        showError(''); // Clear any previous error if successful
-
-    } catch (e) {
-        // Show error in the main alert, but keep preview hidden
-        previewSection.classList.add('hidden');
-        showError(e.message);
+      operationEl.value = calc.type;
+      numbersEl.value = Array.isArray(calc.inputs) ? calc.inputs.join(', ') : '';
+      updatePreview();
+    } catch (err) {
+      showAlert('danger', `Error loading calculation: ${err.message}`);
     }
   }
 
-  // Add input listener for live preview
-  calcInputsInput.addEventListener('input', updatePreview);
-  calcTypeSelect.addEventListener('change', updatePreview); // Listen to type change
+  formEl.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const type = operationEl.value;
+    const inputs = parseInputs(numbersEl.value);
 
-  // Function to load the calculation data
-  async function fetchCalculationDetails() {
-    if (!calcId) {
-        loadingState.innerHTML = '<p class="text-red-700">Error: Calculation ID is missing.</p>';
-        return;
+    if (inputs.length < 2) {
+      showAlert('warning', 'Please enter at least two numbers.');
+      return;
     }
-    
+    if (type === 'division' && inputs.slice(1).includes(0)) {
+      showAlert('warning', 'Cannot divide by zero!');
+      return;
+    }
+
     try {
-        const response = await fetch(`${API_BASE_URL}/calculations/${calcId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Failed to fetch calculation details.');
-        }
-        
-        originalCalculation = await response.json();
-        
-        // Populate form fields and current info
-        document.getElementById('currentType').textContent = originalCalculation.operation_type;
-        document.getElementById('currentInputs').textContent = originalCalculation.inputs.join(', ');
-        document.getElementById('currentResult').textContent = parseFloat(originalCalculation.result).toFixed(2);
-        
-        calcTypeSelect.value = originalCalculation.operation_type; // Set the selected value
-        calcInputsInput.value = originalCalculation.inputs.join(', ');
-        
-        // Show the form and hide the loading state
-        loadingState.classList.add('hidden');
-        editFormDiv.classList.remove('hidden');
-        
-        // Run preview once to show current data
-        updatePreview();
-
-    } catch (error) {
-        console.error('Fetch Error:', error);
-        loadingState.innerHTML = `<p class="text-red-700">Could not load calculation: ${error.message}</p>`;
-        showError(error.message);
-    }
-  }
-
-  // Load data on page load
-  fetchCalculationDetails();
-
-
-  // --- The updateForm Submission Handler for PUT/Edit ---
-  form.addEventListener('submit', async function(event) {
-      event.preventDefault();
-      
-      const submitButton = form.querySelector('button[type="submit"]');
-      let originalButtonContent = submitButton.innerHTML;
-      
-      submitButton.disabled = true;
-      submitButton.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
-
-      try {
-          // 1. Parse and validate inputs
-          const newOperationType = calcTypeSelect.value; // Get the new operation type
-          const inputString = calcInputsInput.value.trim();
-          const inputsArray = inputString.split(',').map(s => {
-              const num = parseFloat(s.trim());
-              if (isNaN(num)) throw new Error('Invalid number format in inputs.');
-              return num;
-          });
-
-          if (inputsArray.length < 2) {
-              throw new Error('Please enter at least two numbers.');
-          }
-          
-          // Client-side validation (e.g., division by zero)
-          const newResult = calculateResult(newOperationType, inputsArray);
-          if (String(newResult).startsWith('Error')) {
-              throw new Error(newResult);
-          }
-
-          const updateData = {
-              operation_type: newOperationType, // CRITICAL: Include the new operation type
-              inputs: inputsArray,
-          };
-
-          // 2. Construct the correct PUT URL with the calculation ID
-          const url = `${API_BASE_URL}/calculations/${calcId}`;
-          
-          // 3. Send the PUT request
-          const response = await fetch(url, {
-              method: 'PUT',
-              headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(updateData),
-          });
-          
-          if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.detail || 'Failed to update calculation.');
-          }
-          
-          showSuccess('Calculation updated successfully! Redirecting...');
-          
-          // Redirect after successful update
-          setTimeout(() => {
-              window.location.href = '/dashboard';
-          }, 1000);
-
-      } catch (error) {
-          // Display the specific error message from the API or validation
-          showError(error.message || 'An unknown error occurred during update.');
-      } finally {
-          // Restore button state
-          submitButton.disabled = false;
-          submitButton.innerHTML = originalButtonContent;
+      const res = await fetch(`/calculations/${calcId}`, {
+        method: 'PUT',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...authHeaders()
+        },
+        body: JSON.stringify({ type, inputs })
+      });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || `Update failed (status ${res.status})`);
       }
+      const updated = await res.json();
+      showAlert('success', 'Calculation updated successfully.');
+
+      currentTypeEl.textContent = updated.type;
+      currentInputsEl.textContent = Array.isArray(updated.inputs) ? updated.inputs.join(', ') : '—';
+      currentResultEl.textContent = (updated.result ?? '—');
+
+      setTimeout(() => {
+        window.location.href = `/dashboard?t=${Date.now()}`;
+      }, 900);
+    } catch (err) {
+      showAlert('danger', `Error updating calculation: ${err.message}`);
+    }
   });
 
-});
+  operationEl.addEventListener('change', updatePreview);
+  numbersEl.addEventListener('input', updatePreview);
+
+  if (calcId) loadCalculation();
+})();
 </script>
 {% endblock %}
+
